@@ -1,0 +1,30 @@
+#!/bin/bash
+source /home/TUE/TUE_20185358/miniconda3/etc/profile.d/conda.sh
+source activate condaenv
+i=1
+n='ResNet'
+echo python3          main100_run.py --net=$n --epochs=150 --idx=$i
+python3 pytorch-cifar/main100_run.py --net=$n --epochs=150 --idx=$i
+python3 pytorch-cifar/main100_run.py --resume --epochs=75 --lr=0.01 --net=$n --idx=$i
+python3 pytorch-cifar/main100_run.py --resume --epochs=75 --lr=0.001 --net=$n --idx=$i
+
+#echo python3             attack_softmax.py --net=$n --km $k --samples 500 --filename='ckpt'$r$n'km_'$i
+#python3 one-pixel-attack/attack_softmax.py --net=$n --km=$k --samples 500 --filename='ckpt'$r$n'km_'$i
+
+#echo python3          main100_gauss.py --lr=0.1 --epochs=150 --net=$n --idx=$i
+#python3 pytorch-cifar/main100_gauss.py --lr=0.1 --epochs=150 --net=$n --idx=$i
+#python3 pytorch-cifar/main100_gauss.py --resume --epochs=75 --lr=0.01 --net=$n --idx=$i
+#python3 pytorch-cifar/main100_gauss.py --resume --epochs=75 --lr=0.001 --net=$n --idx=$i
+
+#echo TAILORING
+#echo cp checkpoint/ckpt$r$n'km_'$i'.t7' checkpoint/ckptMF$r$n'km_'$i'.t7'
+#cp checkpoint/ckpt$r$n'km_'$i'.t7' checkpoint/ckptMF$r$n'km_'$i'.t7'
+
+#echo python3          main_mf.py --resume --epochs=100 --lr=0.01 --net=$n --idx=$i --km=$k --gc=0 #--rnd=$r
+#python3 pytorch-cifar/main_mf.py --resume --epochs=100 --lr=0.01 --net=$n --idx=$i --km=$k --gc=0 #--rnd=$r
+#python3 pytorch-cifar/main_mf.py --resume --epochs=50 --lr=0.001 --net=$n --idx=$i --km=$k --gc=0 #--rnd=$r
+
+#echo python3             attack.py --net=$n --samples 100 --filename='ckptGA'$n'_'$i
+#python3 one-pixel-attack/attack.py --net=$n --samples 100 --filename='ckptGA'$n'_'$i
+
+source deactivate

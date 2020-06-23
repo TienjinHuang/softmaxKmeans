@@ -1,0 +1,23 @@
+#!/bin/bash
+source /home/TUE/TUE_20185358/miniconda3/etc/profile.d/conda.sh
+source activate condaenv
+#k=1
+i=5
+n='ResNet'
+#echo python3          main_run.py --net=$n --idx=$i --km=$k --gc=0
+#python3 pytorch-cifar/main_run.py --net=$n --idx=$i --km=$k --gc=0
+#python3 pytorch-cifar/main_run.py --resume --lr=0.01 --net=$n --idx=$i --km=$k --gc=0
+#python3 pytorch-cifar/main_run.py --resume --lr=0.001 --net=$n --idx=$i --km=$k --gc=0
+
+#echo python3             attack_softmax.py --net=$n --km $k --samples 500 --filename='ckpt'$r$n'km_'$i
+#python3 one-pixel-attack/attack_softmax.py --net=$n --km=$k --samples 500 --filename='ckpt'$r$n'km_'$i
+
+echo python3          main_gauss.py --lr=0.1 --eps=0.05 --epochs=100 --net=$n --idx=$i
+python3 pytorch-cifar/main_gauss.py --lr=0.1 --eps=0.05 --epochs=100 --net=$n --idx=$i
+python3 pytorch-cifar/main_gauss.py --resume --eps=0.05 --epochs=100 --lr=0.01 --net=$n --idx=$i
+python3 pytorch-cifar/main_gauss.py --resume --eps=0.05 --epochs=100 --lr=0.001 --net=$n --idx=$i
+
+echo python3             attack.py --net=$n --samples 100 --filename='ckptGA'$n'_'$i
+python3 one-pixel-attack/attack.py --net=$n --samples 100 --filename='ckptGA'$n'_'$i
+
+source deactivate
