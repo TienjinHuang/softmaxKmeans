@@ -23,6 +23,7 @@ parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 parser.add_argument('--eps', default=0.1, type=float, help='epsilon perturbation')
 parser.add_argument('--net', default='VGG16', help='network architecture')
+parser.add_argument('--initCentroids', default=False, type=int, help='flag whether to initialize with class centroids')
 parser.add_argument('--epochs', default=100, type=int, help='flag whether weights are set to centroids after each epoch')
 parser.add_argument('--prot', default=1, type=int, help='number of prototypes')
 parser.add_argument('--idx',default = '0', help='idx for stored files')
@@ -87,8 +88,38 @@ if args.resume:
     start_epoch = checkpoint['epoch']
 
 criterion = nn.MSELoss()
-optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+my_list = ['module.classifier.weight','module.classifier.gamma']
+params = list(filter(lambda kv: kv[0] in my_list, net.named_parameters()))
+base_params = list(filter(lambda kv: kv[0] not in my_list, net.named_parameters()))
+optimizer = optim.SGD([
+                {'params': [x[1] for x in base_params]},
+                {'params': [x[1] for x in params], 'weight_decay': 0}],
+                lr=args.lr, momentum=0.9, weight_decay=5e-4)
 I=torch.eye(10).to(device)
+y_sum = 0
+with torch.no_grad():
+    for batch_idx, (inputs, targets) in enumerate(trainloader):
+       targets = targets.to(device)
+       Y = I[targets]
+       if batch_idx==0:
+           y_sum = torch.sum(Y,0)
+       else:
+           y_sum += torch.sum(Y,0)
+
+def update_centroids():
+    net.eval()
+    W=0
+    with torch.no_grad():
+        for batch_idx, (inputs, targets) in enumerate(trainloader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            D = net.module.get_D(inputs)
+            Y = I[targets]
+            if batch_idx==0:
+                W = D.t().mm(Y)
+            else:
+                W += D.t().mm(Y)
+    W = W/y_sum
+    net.module.classifier.weight.data = W.t()
 
 def perturb(inputs,Y,epsilon):
     rand_perturb = torch.FloatTensor(inputs.shape).uniform_(-epsilon, epsilon)
@@ -116,11 +147,8 @@ def train(epoch):
         optimizer.zero_grad()
         outputs = net(inputs)
         P1 = torch.exp(outputs)
-        #loss = criterion(torch.exp(outputs/16), Y)+0.95*criterion(torch.exp(outputs/4), Y)+0.68*criterion(P1, Y)+0.25*criterion(torch.exp(9.7*outputs),Y)
-        loss = criterion(torch.exp(outputs/16), Y)
-        loss+= 0.95*criterion(torch.exp(outputs/4), Y)
-        loss+= 0.68*criterion(P1, Y)
-        loss+= 0.38*criterion(torch.exp(4*outputs),Y)
+        loss = criterion(torch.exp(outputs/32), Y)
+        loss+= criterion(P1, Y)
         loss.backward()
         optimizer.step()
 
@@ -130,24 +158,6 @@ def train(epoch):
         correct += predicted.eq(targets).sum().item()
         conf+=confBatch.sum().item()
     print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (100*train_loss/batch_idx, 100.*correct/total, correct, total, 100*conf/total))
-
-def update_centroids(epoch):
-    net.eval()
-    W=0
-    with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(trainloader):
-            inputs, targets = inputs.to(device), targets.to(device)
-            D = net.module.get_D(inputs)
-            Y = I[targets]
-            if batch_idx==0:
-                #W = D.t().mm(Y-0.5)
-                W = D.t().mm(Y)
-            else:
-                #W += D.t().mm(Y-0.5)
-                W += D.t().mm(Y)
-    W = W/y_sum
-    net.module.classifier.weight.data = W.t()
-
 
 def test(epoch):
     global best_acc
@@ -185,16 +195,17 @@ def test(epoch):
         torch.save(state, './checkpoint/ckptGA%s.t7'%(args.net+'_'+args.idx))
         best_acc = acc
 
-
+if args.initCentroids:
+    update_centroids()
 for epoch in range(start_epoch, start_epoch+args.epochs):
     train(epoch)
     test(epoch)
-    if (epoch+1)%1==0:
+    if (epoch+1)%1==0: #print some statistics
         with torch.no_grad():
-            net.eval()
-            X = net.module.classifier.weight.data.t()
-            print('||X||^2:')
-            print(torch.sum(X**2,0))
+            print('||X||^2: %.1f +- %.3f'% (torch.mean(torch.sum(X**2,0)), torch.std(torch.sum(X**2,0))))
+            margins = net.module.get_margins()
+            print('Min margin: %.2f, mean margin: %.2f +- %.3f'% (torch.min(margins), torch.mean(margins), torch.std(margins)))
+            print('gamma: %.2f +- %.3f'% (torch.mean(net.module.classifier.gamma), torch.std(net.module.classifier.gamma)))
 
 
 print('results are at ./checkpoint/ckptGA%s.t7'%(args.net+'_'+args.idx))

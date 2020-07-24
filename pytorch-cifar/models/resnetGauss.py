@@ -65,7 +65,7 @@ class Bottleneck(nn.Module):
         return out
 
 class Gauss(nn.Module):
-    __constants__ = ['in_features', 'out_features','num_classes','gamma']
+    __constants__ = ['in_features', 'out_features','num_classes']
 
     def __init__(self,in_features,out_features,num_classes,gamma):
         super(Gauss, self).__init__()
@@ -74,8 +74,8 @@ class Gauss(nn.Module):
         self.out_features = out_features
         self.num_classes = num_classes
         self.gamma=gamma
+        self.gamma=nn.Parameter(gamma*torch.ones(out_features))
         self.weight = nn.Parameter(torch.Tensor(out_features, in_features))
-        #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         nn.init.uniform_(self.weight,a=0,b=0.1)
 
     def forward(self, D):
@@ -83,9 +83,6 @@ class Gauss(nn.Module):
         out = -torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
         out = out + 2*DX
         out = out - torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
-        #out = torch.exp(1/16*out)
-        #out = torch.sum(out.view(D.shape[0],self.num_classes,-1),2)
-        #return torch.min(out,torch.ones_like(out))
         return self.gamma* out
 
 class ResNetGauss(nn.Module):
@@ -116,6 +113,17 @@ class ResNetGauss(nn.Module):
         out = out + 2*DX
         out = out - torch.sum(X**2,0).unsqueeze(0).expand_as(DX)
         return torch.exp(out)
+
+     def get_margins(self):
+        #X is dxc, out is cxc matrix, containing the distances ||X_i-X_j||
+        # only the upper triangle of out is needed
+        X = self.classifier.weight.data.t()
+        XX = X.t().mm(X)
+        out = -torch.sum(X.t()**2,1).unsqueeze(1).expand_as(XX)
+        out = out + 2*XX
+        out = out - torch.sum(X**2,0).unsqueeze(0).expand_as(XX)
+        triu_idx = torch.triu_indices(out.shape[0], out.shape[0],1)
+        return -out[triu_idx[0],triu_idx[1]]
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
