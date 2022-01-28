@@ -1,1 +1,1 @@
-from .train import models
+from .models import *
