@@ -31,3 +31,7 @@ class LeNet(nn.Module):
         out = F.relu(self.fc1(out))
         out = F.relu(self.fc2(out))
         return out
+    
+    def conf(self,x):
+        out = self.forward(x)
+        return F.softmax(out)
