@@ -6,6 +6,6 @@ setup(name='softmaxkmeans',
       description='Softmax k-means',
       author='Sibylle Hess',
       author_email='s.c.hess@tue.nl',
-      packages=['train*','one-pixel-attack'],
+      packages=['train','train.*','one-pixel-attack'],
       install_requires=['numpy', 'scipy'],
       zip_safe=False)
