@@ -8,6 +8,6 @@ setup(name='softmaxkmeans',
       author='Sibylle Hess',
       author_email='s.c.hess@tue.nl',
       #packages=['train','train.models','one-pixel-attack'],
-      packages=find_packages(include=["train.*"]),
+      packages=find_packages(include=[""]),
       install_requires=['numpy', 'scipy'],
       zip_safe=False)
