@@ -114,7 +114,7 @@ class ResNetGauss(nn.Module):
         out = out - torch.sum(X**2,0).unsqueeze(0).expand_as(DX)
         return torch.exp(out)
 
-     def get_margins(self):
+    def get_margins(self):
         #X is dxc, out is cxc matrix, containing the distances ||X_i-X_j||
         # only the upper triangle of out is needed
         X = self.classifier.weight.data.t()
