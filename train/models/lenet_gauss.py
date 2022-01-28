@@ -56,13 +56,8 @@ class LeNetGauss(nn.Module):
         out = self.classifier(out)
         return out
 
-    def gaussConf(D):
-        X = self.classifier.weight.data.t()
-        DX = D.mm(X)
-        out = -torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
-        out = out + 2*DX
-        out = out - torch.sum(X**2,0).unsqueeze(0).expand_as(DX)
-        return torch.exp(out)
+    def gaussConf(self,x):
+        return torch.exp(self.forward(x))
 
     def get_margins(self):
         #X is dxc, out is cxc matrix, containing the distances ||X_i-X_j||
