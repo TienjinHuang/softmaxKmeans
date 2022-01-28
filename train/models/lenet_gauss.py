@@ -56,7 +56,7 @@ class LeNetGauss(nn.Module):
         out = self.classifier(out)
         return out
 
-    def gaussConf(self,x):
+    def conf(self,x):
         return torch.exp(self.forward(x))
 
     def get_margins(self):
