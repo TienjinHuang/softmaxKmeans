@@ -21,3 +21,17 @@ class LeNet(nn.Module):
         out = F.relu(self.fc2(out))
         out = self.classifier(out)
         return out
+    
+    def get_D(self,x):
+        out = F.relu(self.conv1(x))
+        out = F.max_pool2d(out, 2)
+        out = F.relu(self.conv2(out))
+        out = F.max_pool2d(out, 2)
+        out = out.view(out.size(0), -1)
+        out = F.relu(self.fc1(out))
+        out = F.relu(self.fc2(out))
+        return out
+    
+    def conf(self,x):
+        out = self.forward(x)
+        return F.softmax(out)
