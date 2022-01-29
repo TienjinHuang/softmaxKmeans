@@ -40,21 +40,21 @@ trans = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), 
 trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=trans)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True, num_workers=2)
 # Select only some classes for motivating picture
-idx = (trainset.targets==0) | (trainset.targets==1) | (trainset.targets==2)
+idx = (trainset.targets==0) | (trainset.targets==1) | (trainset.targets==2) | (trainset.targets==3)
 trainset.targets = trainset.targets[idx]
 trainset.data = trainset.data[idx]
 
 testset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=trans)
 testloader = torch.utils.data.DataLoader(testset, batch_size=1000, shuffle=False, num_workers=2)
 # Select only some classes for motivating picture
-idx = (testset.targets==0) | (testset.targets==1) | (testset.targets==2)
+idx = (testset.targets==0) | (testset.targets==1) | (testset.targets==2) | (testset.targets==3)
 testset.targets = testset.targets[idx]
 testset.data = testset.data[idx]
 
 classes = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 c=10
-classes = ('0', '1', '2')
-c=3
+classes = ('0', '1', '2', '3')
+c=4
 # Model
 print('==> Building model..')
 if args.net=='LeNet':

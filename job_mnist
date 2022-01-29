@@ -3,14 +3,15 @@ source /home/TUE/TUE_20185358/miniconda3/etc/profile.d/conda.sh
 source activate condaenv
 i=1
 n='LeNet'
-#echo python3 train/main_mnist_std.py --net=$n --idx=$i --km=0 --gc=0
-#python3 train/main_mnist_std.py --net=$n --idx=$i --km=0 --gc=0
-#python3 train/main_mnist_std.py --resume --net=$n --idx=$i --lr=0.01 --km=0 --gc=0
+echo python3 train/main_mnist_std.py --net=$n --idx=$i --km=0 --gc=0
+python3 train/main_mnist_std.py --net=$n --idx=$i --km=0 --gc=0
+python3 train/main_mnist_std.py --resume --net=$n --idx=$i --lr=0.01 --km=0 --gc=0
 
-echo python3 train/main_mnist_std.py --net=$n --idx=-$i --epochs=5 --km=0 --gc=0
-python3 train/main_mnist_std.py --net=$n --idx=-$i --epochs=5 --km=0 --gc=0
+echo python3 train/main_mnist_std.py --net=$n --idx=-$i --epochs=10 --km=0 --gc=0
+python3 train/main_mnist_std.py --net=$n --idx=-$i --epochs=10 --km=0 --gc=0
 echo cp checkpoint/ckpt$n'_-'$i'.t7' checkpoint/ckptGA$n'_'$i'.t7'
 cp checkpoint/ckpt$n'_-'$i'.t7' checkpoint/ckptGA$n'_'$i'.t7'
+rm checkpoint/ckpt$n'_-'$i'.t7'
 
 echo python3 train/main_mnist_gauss.py --resume --initCentroids=1 --lr=0.1  --epochs=100 --net=$n --idx=$i
 python3 train/main_mnist_gauss.py --resume --initCentroids=1 --lr=0.1  --epochs=100 --net=$n --idx=$i
