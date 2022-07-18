@@ -23,7 +23,7 @@ class Gauss(nn.Module):
         out = -torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
         out = out + 2*DX
         out = out - torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
-        return self.gamma*out
+        return F.relu(self.gamma)*out
 
 
 class LeNetGauss(nn.Module):
