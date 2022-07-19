@@ -13,16 +13,16 @@ class Gauss(nn.Module):
         self.in_features = in_features
         self.out_features = out_features
         self.gamma=nn.Parameter(gamma*torch.ones(out_features))
-        self.weight = nn.Parameter(torch.Tensor(out_features, in_features))
+        self.Z = nn.Parameter(torch.Tensor(out_features, in_features))
         #self.weight.requires_grad=False
         #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        nn.init.uniform_(self.weight,a=0,b=0.1)
+        nn.init.uniform_(self.Z,a=0,b=0.1)
 
     def forward(self, D):
-        DX = D.mm(self.weight.t())
+        DX = D.mm(self.Z.t())
         out = torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
         out = out - 2*DX
-        out = out + torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
+        out = out + torch.sum(self.Z.t()**2,0).unsqueeze(0).expand_as(DX)
         return -F.relu(self.gamma*out)
     
 class Gauss_MV(nn.Module):
@@ -86,7 +86,7 @@ class LeNetGauss(nn.Module):
     def get_margins(self):
         #X is dxc, out is cxc matrix, containing the distances ||X_i-X_j||
         # only the upper triangle of out is needed
-        X = self.classifier.weight.data.t()
+        X = self.classifier.Z.data.t()
         XX = X.t().mm(X)
         out = -torch.sum(X.t()**2,1).unsqueeze(1).expand_as(XX)
         out = out + 2*XX
