@@ -20,10 +20,10 @@ class Gauss(nn.Module):
 
     def forward(self, D):
         DX = D.mm(self.weight.t())
-        out = -torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
-        out = out + 2*DX
-        out = out - torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
-        return F.relu(self.gamma)*out
+        out = torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
+        out = out - 2*DX
+        out = out + torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
+        return -F.relu(self.gamma*out)
 
 
 class LeNetGauss(nn.Module):
