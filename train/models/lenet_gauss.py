@@ -37,11 +37,10 @@ class Gauss_MV(nn.Module):
         self.in_features = in_features
         self.out_features = out_features
         self.weight = nn.Parameter(torch.Tensor(in_features ,out_features)) #centroids (dxc)
-        self.W = nn.Parameter(torch.Tensor(out_features,in_features,in_features)) # Whitening matrix (cxrxd)
+        self.W = nn.Parameter(torch.einsum('k,il->kil',torch.ones(out_features),torch.eye(in_features) )) # Whitening matrix (cxrxd) = (cxdxd)
         #self.weight.requires_grad=False
         #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         nn.init.uniform_(self.weight,a=0,b=gamma)
-        nn.init.uniform_(self.W,a=0,b=gamma)
 
     def forward(self, D):
         WDt = torch.matmul(self.W, D.t()) #c x r x m
