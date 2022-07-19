@@ -61,8 +61,8 @@ class LeNetGauss(nn.Module):
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.fc1   = nn.Linear(16*4*4, 120)
         self.fc2   = nn.Linear(120, embedding_dim)
-        #self.classifier  = Gauss(embedding_dim, num_classes,num_classes,  gamma)
-        self.classifier  = Gauss_MV(embedding_dim, num_classes,num_classes,  gamma)
+        self.classifier  = Gauss(embedding_dim, num_classes,num_classes,  gamma)
+        #self.classifier  = Gauss_MV(embedding_dim, num_classes,num_classes,  gamma)
 
     def get_D(self,x):
         out = F.relu(self.conv1(x))
