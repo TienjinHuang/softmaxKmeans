@@ -16,7 +16,7 @@ class Gauss(nn.Module):
         self.weight = nn.Parameter(torch.Tensor(out_features, in_features))
         #self.weight.requires_grad=False
         #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        nn.init.uniform_(self.weight,a=0,b=0.1)
+        nn.init.uniform_(self.weight,a=0,b=2/gamma)
 
     def forward(self, D):
         DX = D.mm(self.weight.t())
@@ -61,8 +61,8 @@ class LeNetGauss(nn.Module):
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.fc1   = nn.Linear(16*4*4, 120)
         self.fc2   = nn.Linear(120, embedding_dim)
-        self.classifier  = Gauss(embedding_dim, num_classes,num_classes,  gamma)
-        #self.classifier  = Gauss_MV(embedding_dim, num_classes,num_classes,  gamma)
+        #self.classifier  = Gauss(embedding_dim, num_classes,num_classes,  gamma)
+        self.classifier  = Gauss_MV(embedding_dim, num_classes,num_classes,  gamma)
 
     def get_D(self,x):
         out = F.relu(self.conv1(x))
