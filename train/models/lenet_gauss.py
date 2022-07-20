@@ -28,6 +28,17 @@ class Gauss(nn.Module):
     def conf(self,D):
         return torch.exp(self.forward(D))
     
+    def get_margins(self):
+        #X is dxc, out is cxc matrix, containing the distances ||X_i-X_j||
+        # only the upper triangle of out is needed
+        X = weight.data.t()
+        XX = X.t().mm(X)
+        out = -torch.sum(X.t()**2,1).unsqueeze(1).expand_as(XX)
+        out = out + 2*XX
+        out = out - torch.sum(X**2,0).unsqueeze(0).expand_as(XX)
+        triu_idx = torch.triu_indices(out.shape[0], out.shape[0],1)
+        return -out[triu_idx[0],triu_idx[1]]
+    
 class Gauss_MV(nn.Module):
     __constants__ = ['in_features', 'out_features', 'num_classes']
 
@@ -53,6 +64,7 @@ class Gauss_MV(nn.Module):
 
     def conf(self,D):
         return torch.exp(self.forward(D))
+    
 
 class LeNetGauss(nn.Module):
     def __init__(self,embedding_dim=84, num_classes=10, gamma=1):
@@ -61,7 +73,7 @@ class LeNetGauss(nn.Module):
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.fc1   = nn.Linear(16*4*4, 120)
         self.fc2   = nn.Linear(120, embedding_dim)
-        self.classifier  = Gauss(embedding_dim, num_classes,num_classes,  gamma)
+        #self.classifier  = Gauss(embedding_dim, num_classes,num_classes,  gamma)
         #self.classifier  = Gauss_MV(embedding_dim, num_classes,num_classes,  gamma)
 
     def get_D(self,x):
@@ -82,20 +94,9 @@ class LeNetGauss(nn.Module):
         out = out.view(out.size(0), -1)
         out = F.relu(self.fc1(out))
         out = F.relu(self.fc2(out))
-        out = self.classifier(out)
+        #out = self.classifier(out)
         return out
 
     def conf(self,x):
         return torch.exp(self.forward(x))
-
-    def get_margins(self):
-        #X is dxc, out is cxc matrix, containing the distances ||X_i-X_j||
-        # only the upper triangle of out is needed
-        X = self.classifier.weight.data.t()
-        XX = X.t().mm(X)
-        out = -torch.sum(X.t()**2,1).unsqueeze(1).expand_as(XX)
-        out = out + 2*XX
-        out = out - torch.sum(X**2,0).unsqueeze(0).expand_as(XX)
-        triu_idx = torch.triu_indices(out.shape[0], out.shape[0],1)
-        return -out[triu_idx[0],triu_idx[1]]
 
