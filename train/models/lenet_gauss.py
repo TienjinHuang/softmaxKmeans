@@ -16,7 +16,7 @@ class Gauss(nn.Module):
         self.weight = nn.Parameter(torch.Tensor(out_features, in_features))
         #self.weight.requires_grad=False
         #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        nn.init.uniform_(self.weight,a=0,b=2/gamma)
+        nn.init.uniform_(self.weight,a=1/gamma,b=10/gamma)
 
     def forward(self, D):
         DX = D.mm(self.weight.t())
