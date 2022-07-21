@@ -23,7 +23,7 @@ class LeNetEmbed(nn.Module):
     
     
 class LeNet(nn.Module):
-    def __init__(self,embedding_dim=84, classifier):
+    def __init__(self,embedding_dim, classifier):
         super(LeNet, self).__init__()
         self.embed = LeNetEmbed(embedding_dim=embedding_dim)
         #self.classifier   = nn.Linear(embedding_dim, num_classes,bias=False)
