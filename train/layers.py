@@ -31,7 +31,7 @@ class Gauss(nn.Module):
     def get_margins(self):
         #X is dxc, out is cxc matrix, containing the distances ||X_i-X_j||
         # only the upper triangle of out is needed
-        X = weight.data.t()
+        X = self.weight.data.t()
         XX = X.t().mm(X)
         out = -torch.sum(X.t()**2,1).unsqueeze(1).expand_as(XX)
         out = out + 2*XX
