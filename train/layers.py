@@ -5,15 +5,15 @@ import torch.nn.functional as F
 import math
 
 class Gauss(nn.Module):
-    __constants__ = ['in_features', 'out_features', 'num_classes']
+    __constants__ = ['in_features', 'out_features']
 
-    def __init__(self,in_features,out_features,num_classes, gamma):
+    def __init__(self,in_features,out_features, gamma):
         super(Gauss, self).__init__()
 
         self.in_features = in_features
         self.out_features = out_features
         self.gamma=nn.Parameter(gamma*torch.ones(out_features))
-        self.weight = nn.Parameter(torch.Tensor(out_features, in_features))
+        self.weight = nn.Parameter(torch.Tensor(out_features, in_features)) # (cxd)
         #self.weight.requires_grad=False
         #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         nn.init.uniform_(self.weight,a=1/gamma,b=10/gamma)
@@ -40,9 +40,9 @@ class Gauss(nn.Module):
         return -out[triu_idx[0],triu_idx[1]]
     
 class Gauss_MV(nn.Module):
-    __constants__ = ['in_features', 'out_features', 'num_classes']
+    __constants__ = ['in_features', 'out_features']
 
-    def __init__(self,in_features,out_features,num_classes, gamma):
+    def __init__(self,in_features,out_features, gamma):
         super(Gauss_MV, self).__init__()
 
         self.in_features = in_features
