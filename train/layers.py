@@ -68,17 +68,18 @@ class Gauss_MV(nn.Module):
 class Gauss_DUQ(nn.Module):
     __constants__ = ['in_features', 'out_features']
 
-    def __init__(self,in_features,out_features, gamma, rank_whitening = 256):
+    def __init__(self,in_features,out_features, gamma, alpha=0.99):
         super(Gauss_DUQ, self).__init__()
 
         self.in_features = in_features
         self.out_features = out_features
         self.gamma=gamma
+        self.alpha=alpha
         self.register_buffer("N", torch.ones(num_classes) * 12) # 
         self.register_buffer(
             "m", torch.normal(torch.zeros(in_features, out_features), 1) # (dxc)
         )
-        self.W = nn.Parameter(torch.normal(torch.zeros(in_features, out_features, rank_whitening), 0.05)) # (dxcxr)
+        self.W = nn.Parameter(torch.normal(torch.zeros(in_features, out_features, in_features), 0.05)) # (dxcxr) (r=c?)
 
     def forward(self, D):
         DW = torch.einsum("ij,mnj->imn", D, self.W) # (mxdxc)
@@ -89,4 +90,16 @@ class Gauss_DUQ(nn.Module):
 
     def conf(self,D):
         return torch.exp(self.forward(D))
+    
+    def update_centroids(self, Y):
+        DW = torch.einsum("ij,mnj->imn", D, self.W) # (mxdxc)
+
+        # normalizing value per class, assumes y is one_hot encoded
+        self.N = self.alpha * self.N + (1 - self.alpha) * Y.sum(0)
+
+        # compute sum of embeddings on class by class basis
+        features_sum = torch.einsum("ijk,ik->jk", DW, Y)
+
+        self.m = self.alpha * self.m + (1 - self.alpha) * features_sum
+
  
