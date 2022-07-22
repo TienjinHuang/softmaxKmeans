@@ -68,7 +68,7 @@ class Gauss_MV(nn.Module):
 class Gauss_DUQ(nn.Module):
     __constants__ = ['in_features', 'out_features']
 
-    def __init__(self,in_features,out_features, gamma, alpha=0.99):
+    def __init__(self, in_features, out_features, gamma, alpha=0.999):
         super(Gauss_DUQ, self).__init__()
 
         self.in_features = in_features
@@ -91,7 +91,7 @@ class Gauss_DUQ(nn.Module):
     def conf(self,D):
         return torch.exp(self.forward(D))
     
-    def update_centroids(self, Y):
+    def update_centroids(self, D, Y):
         DW = torch.einsum("ij,mnj->imn", D, self.W) # (mxdxc)
 
         # normalizing value per class, assumes y is one_hot encoded
