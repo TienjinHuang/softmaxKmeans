@@ -75,7 +75,7 @@ class Gauss_DUQ(nn.Module):
         self.out_features = out_features
         self.gamma=gamma
         self.alpha=alpha
-        self.register_buffer("N", torch.ones(num_classes) * 12) # 
+        self.register_buffer("N", torch.ones(out_features) * 12) # 
         self.register_buffer(
             "m", torch.normal(torch.zeros(in_features, out_features), 1) # (dxc)
         )
