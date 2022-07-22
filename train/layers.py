@@ -82,7 +82,7 @@ class Gauss_DUQ(nn.Module):
 
     def forward(self, D):
         DW = torch.einsum("ij,mnj->imn", D, self.W) # (mxdxc)
-        Z = self.m / self.N.unsqueeze(0) # centroids
+        Z = self.m / self.N.unsqueeze(0) # centroids (dxc)
         out = DW - Z.unsqueeze(0)
         return -self.gamma*torch.mean((out**2),1) # (mxc)
     
