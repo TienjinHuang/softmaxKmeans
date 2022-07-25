@@ -26,9 +26,9 @@ def train_epoch(epoch, net, criterion, weight_gp_pred=0, weight_gp_embed=0, upda
         loss = criterion(outputs,targets)
         #----- gradient penalty
         if weight_gp_pred > 0:
-            loss += weight_gp_pred * train.optimization.gradient_penalty(inputs, criterion.Y_pred)
+            loss += weight_gp_pred * gradient_penalty(inputs, criterion.Y_pred)
         if weight_gp_embed>0:
-            loss+= weight_gp_embed * train.optimization.gradient_penalty(inputs, outputs)
+            loss+= weight_gp_embed * gradient_penalty(inputs, outputs)
         loss.backward()
         optimizer.step()
         inputs.requires_grad_(False)
