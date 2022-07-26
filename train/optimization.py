@@ -49,5 +49,5 @@ class Optimizer:
               total += targets.size(0)
               correct += predicted.eq(targets).sum().item()
               conf+=confBatch.sum().item()
-      print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (100*train_loss/batch_idx, 100.*correct/total, correct, total, 100*conf/total)
-      return 100.*correct/total, 100*conf/total
+        print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (100*train_loss/batch_idx, 100.*correct/total, correct, total, 100*conf/total))
+        return 100.*correct/total, 100*conf/total
