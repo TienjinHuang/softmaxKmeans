@@ -13,9 +13,9 @@ class BCE_GALoss(nn.Module):
     def forward(self, inputs, targets):        
         Y = self.I[targets]
         try:
-            loss = self.bce_loss(torch.exp(classifier(inputs)*self.gamma2),Y) 
-            mse_M =  self.mse_loss(Y@classifier.weight,inputs)
-            mse_M = torch.diag(Y@classifier.gamma) @ mse_M
+            loss = self.bce_loss(torch.exp(self.classifier(inputs)*self.gamma2),Y) 
+            mse_M =  self.mse_loss(Y@self.classifier.weight,inputs)
+            mse_M = torch.diag(Y@self.classifier.gamma) @ mse_M
             loss+= torch.mean(mse_M)
         except RuntimeError as e:
             print("min,max D",torch.min(inputs).item(), torch.max(inputs).item())
@@ -40,7 +40,7 @@ class BCE_DUQLoss(nn.Module):
     
     def forward(self, inputs, targets):
         self.Y = self.I[targets]
-        self.Y_pred = torch.exp(classifier(inputs))
+        self.Y_pred = torch.exp(self.classifier(inputs))
         loss = self.bce_loss(self.Y_pred, self.Y)
         return loss
     
