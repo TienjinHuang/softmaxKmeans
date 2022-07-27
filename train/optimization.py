@@ -53,7 +53,7 @@ class Optimizer:
     print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (100*train_loss/batch_idx, 100.*correct/total, correct, total, 100*conf/total))
     return (100.*correct/total, 100*conf/total)
   
-  def test_epoch(net, criterion, data_loader):
+  def test_epoch(self, net, criterion, data_loader):
     net.eval()
     test_loss, correct, total, conf, batch_idx = 0,0,0,0,0
     with torch.no_grad():
