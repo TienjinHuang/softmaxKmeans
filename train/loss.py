@@ -1,3 +1,5 @@
+import torch.nn as nn
+
 class BCE_GALoss(nn.Module):
     def __init__(self, classifier, c, device):
         super(BCE_GALoss, self).__init__()
