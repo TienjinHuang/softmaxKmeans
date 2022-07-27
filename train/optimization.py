@@ -57,7 +57,7 @@ class Optimizer:
     net.eval()
     test_loss, correct, total, conf, batch_idx = 0,0,0,0,0
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(self.data_loader):
+        for batch_idx, (inputs, targets) in enumerate(data_loader):
             inputs, targets = inputs.to(self.device), targets.to(self.device)
             outputs = net.embed(inputs)
             loss = criterion(outputs, targets)
