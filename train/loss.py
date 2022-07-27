@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 
 class BCE_GALoss(nn.Module):
     def __init__(self, classifier, c, device):
