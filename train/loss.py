@@ -18,7 +18,7 @@ class BCE_GALoss(nn.Module):
             loss = self.bce_loss(torch.exp(distances*self.gamma2),Y) 
             #mse_M = self.mse_loss(Y@self.classifier.weight,inputs)
             #mse_M = torch.diag(Y@self.classifier.gamma) @ mse_M
-            loss+= torch.mean(Y*distances)
+            loss+= torch.mean(-Y*distances)
         except RuntimeError as e:
             print("min,max D",torch.min(inputs).item(), torch.max(inputs).item())
             print("min,max output",torch.min(torch.exp(inputs)).item(), torch.max(torch.exp(inputs)).item())
