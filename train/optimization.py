@@ -6,6 +6,7 @@ class Optimizer:
     self.trainloader = trainloader
     self.update_centroids = update_centroids
     self.device=device
+    self.best_acc=0
     
   def gradient_penalty(self, inputs, outputs):
     gradients = torch.autograd.grad(
@@ -50,4 +51,21 @@ class Optimizer:
         correct += predicted.eq(targets).sum().item()
         conf+=confBatch.sum().item()
     print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (100*train_loss/batch_idx, 100.*correct/total, correct, total, 100*conf/total))
+    return (100.*correct/total, 100*conf/total)
+  
+  def test_epoch(net, criterion, data_loader):
+    net.eval()
+    test_loss, correct, total, conf, batch_idx = 0,0,0,0,0
+    with torch.no_grad():
+        for batch_idx, (inputs, targets) in enumerate(self.data_loader):
+            inputs, targets = inputs.to(self.device), targets.to(self.device)
+            outputs = net.embed(inputs)
+            loss = criterion(outputs, targets)
+
+            test_loss += loss.item()
+            confBatch, predicted = criterion.conf(outputs).max(1)
+            total += targets.size(0)
+            correct += predicted.eq(targets).sum().item()
+            conf+=confBatch.sum().item()
+    print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (100*test_loss/max(batch_idx,1), 100.*correct/total, correct, total, 100*conf/total))
     return (100.*correct/total, 100*conf/total)
