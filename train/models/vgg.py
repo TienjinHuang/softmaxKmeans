@@ -16,7 +16,7 @@ cfg = {
 
 class VGGEmbed(nn.Module):
     def __init__(self, vgg_name):
-        super(VGG, self).__init__()
+        super(VGGEmbed, self).__init__()
         self.features = self._make_layers(cfg[vgg_name])
 
     def forward(self, x):
