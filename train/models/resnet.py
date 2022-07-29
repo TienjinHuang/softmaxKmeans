@@ -64,9 +64,9 @@ class Bottleneck(nn.Module):
         return out
 
 
-class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes):
-        super(ResNet, self).__init__()
+class ResNetEmbed(nn.Module):
+    def __init__(self, block, num_blocks):
+        super(ResNetEmbed, self).__init__()
         self.in_planes = 64
 
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
@@ -75,8 +75,7 @@ class ResNet(nn.Module):
         self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
-        self.classifier = nn.Linear(512*block.expansion, num_classes, bias=False)
-
+        
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
@@ -93,37 +92,32 @@ class ResNet(nn.Module):
         out = self.layer4(out)
         out = F.avg_pool2d(out, 4)
         out = out.view(out.size(0), -1)
+        return out
+    
+class ResNet(nn.Module):
+    def __init__(self, block, num_blocks, classifier):
+        super(ResNet, self).__init__()
+        self.embed = ResNetEmbed()
+        #self.classifier = nn.Linear(512*block.expansion, num_classes, bias=False)
+        self.classifier = classifier
+
+    def forward(self, x):
+        out = self.embed(x)
         out = self.classifier(out)
         return out
 
-    def get_D(self,x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.layer1(out)
-        out = self.layer2(out)
-        out = self.layer3(out)
-        out = self.layer4(out)
-        out = F.avg_pool2d(out, 4)
-        return out.view(out.size(0), -1)
+def ResNet18(classifier):
+    return ResNet(BasicBlock, [2,2,2,2],classifier)
 
-def ResNet18(c=10):
-    return ResNet(BasicBlock, [2,2,2,2],c)
+def ResNet34(classifier):
+    return ResNet(BasicBlock, [3,4,6,3],classifier)
 
-def ResNet34(c=10):
-    return ResNet(BasicBlock, [3,4,6,3],c)
+def ResNet50(classifier):
+    return ResNet(Bottleneck, [3,4,6,3],classifier)
 
-def ResNet50(c=10):
-    return ResNet(Bottleneck, [3,4,6,3],c)
+def ResNet101(classifier):
+    return ResNet(Bottleneck, [3,4,23,3],classifier)
 
-def ResNet101(c=10):
-    return ResNet(Bottleneck, [3,4,23,3],c)
+def ResNet152(classifier):
+    return ResNet(Bottleneck, [3,8,36,3],classifier)
 
-def ResNet152(c=10):
-    return ResNet(Bottleneck, [3,8,36,3],c)
-
-
-def test():
-    net = ResNet18()
-    y = net(torch.randn(1,3,32,32))
-    print(y.size())
-
-# test()
