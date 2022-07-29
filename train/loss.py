@@ -1,12 +1,24 @@
 import torch.nn as nn
 import torch
 
+class CE_Loss(nn.Module):
+    def __init__(self, classifier, c, device):
+        super(CE_Loss, self).__init__()
+        self.ce_loss = nn.CrossEntropyLoss()
+        self.classifier = classifier.to(device)
+ 
+    def forward(self, inputs, targets):        
+        return self.ce_loss(self.classifier(inputs), targets)
+    
+    def conf(self,inputs):
+        return self.classifier.conf(inputs)
+
 class BCE_GALoss(nn.Module):
     def __init__(self, classifier, c, device):
         super(BCE_GALoss, self).__init__()
         self.I = torch.eye(c).to(device)
         self.bce_loss = nn.BCELoss()
-        self.mse_loss = nn.MSELoss(reduction='none')
+        #self.mse_loss = nn.MSELoss(reduction='none')
         self.classifier = classifier.to(device)
         self.gamma2 = nn.Parameter(torch.Tensor([0.9]))
  
