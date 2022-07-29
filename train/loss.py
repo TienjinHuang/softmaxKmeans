@@ -6,12 +6,13 @@ class CE_Loss(nn.Module):
         super(CE_Loss, self).__init__()
         self.ce_loss = nn.CrossEntropyLoss()
         self.classifier = classifier.to(device)
+        self.softmax = nn.Softmax(dim=1)
  
     def forward(self, inputs, targets):        
         return self.ce_loss(self.classifier(inputs), targets)
     
     def conf(self,inputs):
-        return self.classifier.conf(inputs)
+        return self.softmax(self.classifier(inputs))
 
 class BCE_GALoss(nn.Module):
     def __init__(self, classifier, c, device):
