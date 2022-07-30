@@ -77,7 +77,7 @@ def attack( net, device, testloader, epsilon, criterion ):
   # Calculate final accuracy for this epsilon
   attack_acc = correct/len(testloader.dataset)
   attack_conf = conf/max(attack_successes,1)
-  print("Epsilon: {%.3f}\tTest Accuracy = {} / {} = {%.3f}\t conf attacks={%.3f}".format(epsilon, correct, len(testset), attack_acc, attack_conf))
+  print("Epsilon: {%.3f}\tTest Accuracy = {} / {} = {%.3f}\t conf attacks={%.3f}".format(epsilon, correct, len(testloader.dataset), attack_acc, attack_conf))
   if len(adv_x)>0:
     adv_x= torch.cat(adv_x, dim=0)
   else:
