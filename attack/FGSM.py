@@ -61,7 +61,7 @@ def attack( net, device, testloader, epsilon, criterion ):
       
 
       # Check for success
-      conf_pert, pred_pert = criterion.conf(embedding).max(1)
+      conf_pert, pred_pert = criterion.conf(embedding_perturbed).max(1)
       #final_pred = criterion.conf(embedding_perturbed).max(1, keepdim=True)[1].flatten() # get the index of the max log-probability
       #conf_pert = np.max(net.module.conf(inputs).detach().cpu().numpy())
       pred = criterion.conf(embedding).max(1)[1] 
