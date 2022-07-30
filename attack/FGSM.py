@@ -26,7 +26,7 @@ def fgsm_perturbation(image, epsilon, data_grad):
   # Return the perturbed image
   return perturbed_image
 
-def attack( net, device, test_loader, epsilon, criterion ):
+def attack( net, device, testloader, epsilon, criterion ):
   r"""
   Performing attacks on a dataset
 
@@ -36,15 +36,14 @@ def attack( net, device, test_loader, epsilon, criterion ):
   successful adversarial examples to be visualized later.
   """
   # Accuracy counter
-  correct = 0
-  adv_x, adv_D, adv_y, adv_yhat = [],[],[],[]
-  conf = 0
+  correct, conf, attack_successes = 0, 0, 0
+  adv_x = []
   net.eval()
   # Loop over all examples in test set
-  for data, target in test_loader:
+  for inputs, targets in testloader:
       # Send the data and label to the device
-      data, target = data.to(device), target.to(device)
-      data.requires_grad = True
+      inputs, target = inputs.to(device), target.to(device)
+      inputs.requires_grad = True
 
       # Calculate the loss
       embedding = net.embed(inputs)
@@ -52,30 +51,37 @@ def attack( net, device, test_loader, epsilon, criterion ):
 
       net.zero_grad()
       loss.backward()
-      data_grad = data.grad.data
+      data_grad = inputs.grad.data
 
       # Call FGSM Attack
-      perturbed_data = fgsm_perturbation(data, epsilon, data_grad)
+      perturbed_data = fgsm_perturbation(inputs, epsilon, data_grad)
       
-      init_pred = criterion.conf(embedding).max(1, keepdim=True)[1] # get the index of the max log-confidence
       # Re-classify the perturbed image
-      embedding_perturbed = net.embed(perturbed_img)
+      embedding_perturbed = net.embed(perturbed_data)
       
 
       # Check for success
       conf_pert, pred_pert = criterion.conf(embedding).max(1)
       #final_pred = criterion.conf(embedding_perturbed).max(1, keepdim=True)[1].flatten() # get the index of the max log-probability
-      #conf_pert = np.max(net.module.conf(data).detach().cpu().numpy())
-      correct+= torch.sum(torch.eq(final_pred,target))
-      adv_x.append(perturbed_img)
+      #conf_pert = np.max(net.module.conf(inputs).detach().cpu().numpy())
+      pred = criterion.conf(embedding).max(1)[1] 
+      pred_is_correct = torch.eq(pred,target)
+      pred_pert_is_correct = torch.eq(pred_pert,target)
+      correct+=torch.sum(pred_pert_is_correct).item()
+      attack_success = (pred_pert_is_correct== False) &  pred_is_correct
+      attack_successes += torch.sum(attack_success).item()
+      conf+=torch.sum(conf_pert[attack_success]).item()
+      correct+= torch.sum(torch.eq(pred_pert,target)).item()
+      adv_x.append(perturbed_data[attack_success,:,:,:])
 
   # Calculate final accuracy for this epsilon
-  final_acc = correct.item()/float(len(testset))
-  print("Epsilon: {}\tTest Accuracy = {} / {} = {}".format(epsilon, correct, len(testset), final_acc))
+  attack_acc = correct/len(testloader.dataset)
+  attack_conf = conf/attack_successes
+  print("Epsilon: {%.3f}\tTest Accuracy = {} / {} = {%.3f}\t conf attacks={%.3f}".format(epsilon, correct, len(testset), attack_acc, attack_conf))
   if len(adv_x)>0:
     adv_x= torch.cat(adv_x, dim=0)
   else:
     adv_x=None
 
-  # Return the accuracy and an adversarial example
-  return final_acc, adv_x, conf/(float(len(testset))-correct)
+  # Return the accuracy and adversarial examples
+  return attack_acc, attack_conf, adv_x
