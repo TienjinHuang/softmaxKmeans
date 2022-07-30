@@ -55,7 +55,7 @@ def attack( net, device, test_loader, epsilon, criterion ):
       data_grad = data.grad.data
 
       # Call FGSM Attack
-      perturbed_data = FGSM.fgsm_attack(data, epsilon, data_grad)
+      perturbed_data = fgsm_perturbation(data, epsilon, data_grad)
       
       init_pred = criterion.conf(embedding).max(1, keepdim=True)[1] # get the index of the max log-confidence
       # Re-classify the perturbed image
