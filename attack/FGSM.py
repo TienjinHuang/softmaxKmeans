@@ -42,7 +42,7 @@ def attack( net, device, testloader, epsilon, criterion ):
   # Loop over all examples in test set
   for inputs, targets in testloader:
       # Send the data and label to the device
-      inputs, target = inputs.to(device), target.to(device)
+      inputs, targets = inputs.to(device), targets.to(device)
       inputs.requires_grad = True
 
       # Calculate the loss
@@ -65,13 +65,13 @@ def attack( net, device, testloader, epsilon, criterion ):
       #final_pred = criterion.conf(embedding_perturbed).max(1, keepdim=True)[1].flatten() # get the index of the max log-probability
       #conf_pert = np.max(net.module.conf(inputs).detach().cpu().numpy())
       pred = criterion.conf(embedding).max(1)[1] 
-      pred_is_correct = torch.eq(pred,target)
-      pred_pert_is_correct = torch.eq(pred_pert,target)
+      pred_is_correct = torch.eq(pred,targets)
+      pred_pert_is_correct = torch.eq(pred_pert,targets)
       correct+=torch.sum(pred_pert_is_correct).item()
       attack_success = (pred_pert_is_correct== False) &  pred_is_correct
       attack_successes += torch.sum(attack_success).item()
       conf+=torch.sum(conf_pert[attack_success]).item()
-      correct+= torch.sum(torch.eq(pred_pert,target)).item()
+      correct+= torch.sum(torch.eq(pred_pert,targets)).item()
       adv_x.append(perturbed_data[attack_success,:,:,:])
 
   # Calculate final accuracy for this epsilon
