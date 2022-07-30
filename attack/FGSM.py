@@ -68,7 +68,7 @@ def attack( net, device, testloader, epsilon, criterion ):
       pred_is_correct = torch.eq(pred,targets)
       pred_pert_is_correct = torch.eq(pred_pert,targets)
       correct+=torch.sum(pred_pert_is_correct).item()
-      attack_success = (pred_pert_is_correct== False) &  pred_is_correct
+      attack_success = (pred_pert_is_correct== False) &  pred_is_correct & (conf_pert>0.1)
       attack_successes += torch.sum(attack_success).item()
       conf+=torch.sum(conf_pert[attack_success]).item()
       adv_x.append(perturbed_data[attack_success,:,:,:])
