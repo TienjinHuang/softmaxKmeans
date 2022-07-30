@@ -21,7 +21,7 @@ class BCE_GALoss(nn.Module):
         self.bce_loss = nn.BCELoss()
         #self.mse_loss = nn.MSELoss(reduction='none')
         self.classifier = classifier.to(device)
-        self.gamma2 = nn.Parameter(torch.Tensor([0.9]))
+        self.gamma2 = nn.Parameter(torch.Tensor([0.9])).to(device)
  
     def forward(self, inputs, targets):        
         Y = self.I[targets]
