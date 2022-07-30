@@ -1,6 +1,7 @@
+import torch
 
 # FGSM attack code
-def fgsm_attack(image, epsilon, data_grad):
+def fgsm_perturbation(image, epsilon, data_grad):
   r"""
   FGSM Attack
 
@@ -25,7 +26,7 @@ def fgsm_attack(image, epsilon, data_grad):
   # Return the perturbed image
   return perturbed_image
 
-def attack( model, device, test_loader, epsilon, loss_train ):
+def attack( net, device, test_loader, epsilon, criterion ):
   r"""
   Performing attacks on a dataset
 
@@ -38,35 +39,35 @@ def attack( model, device, test_loader, epsilon, loss_train ):
   correct = 0
   adv_x, adv_D, adv_y, adv_yhat = [],[],[],[]
   conf = 0
-  model.eval()
+  net.eval()
   # Loop over all examples in test set
   for data, target in test_loader:
       # Send the data and label to the device
       data, target = data.to(device), target.to(device)
       data.requires_grad = True
 
-      # Forward pass the data through the model
-      output = model(data)
-      init_pred = output.max(1, keepdim=True)[1] # get the index of the max log-confidence
-
       # Calculate the loss
-      loss = loss_train(output, target)
+      embedding = net.embed(inputs)
+      loss = criterion(embedding,targets)
 
-      model.zero_grad()
+      net.zero_grad()
       loss.backward()
       data_grad = data.grad.data
 
       # Call FGSM Attack
-      perturbed_data = fgsm_attack(data, epsilon, data_grad)
-
+      perturbed_data = FGSM.fgsm_attack(data, epsilon, data_grad)
+      
+      init_pred = criterion.conf(embedding).max(1, keepdim=True)[1] # get the index of the max log-confidence
       # Re-classify the perturbed image
-      output = model(perturbed_data)
+      embedding_perturbed = net.embed(perturbed_img)
+      
 
       # Check for success
-      final_pred = output.max(1, keepdim=True)[1].flatten() # get the index of the max log-probability
-      conf_pert = np.max(model.module.conf(data).detach().cpu().numpy())
+      conf_pert, pred_pert = criterion.conf(embedding).max(1)
+      #final_pred = criterion.conf(embedding_perturbed).max(1, keepdim=True)[1].flatten() # get the index of the max log-probability
+      #conf_pert = np.max(net.module.conf(data).detach().cpu().numpy())
       correct+= torch.sum(torch.eq(final_pred,target))
-      adv_x.append(perturbed_data)
+      adv_x.append(perturbed_img)
 
   # Calculate final accuracy for this epsilon
   final_acc = correct.item()/float(len(testset))
