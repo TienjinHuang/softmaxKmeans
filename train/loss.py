@@ -7,9 +7,11 @@ class CE_Loss(nn.Module):
         self.ce_loss = nn.CrossEntropyLoss()
         self.classifier = classifier.to(device)
         self.softmax = nn.Softmax(dim=1)
+        self.Y_pred = 0
  
-    def forward(self, inputs, targets):        
-        return self.ce_loss(self.classifier(inputs), targets)
+    def forward(self, inputs, targets):  
+        self.Y_pred = self.classifier(inputs) # prediction before softmax
+        return self.ce_loss(self.Y_pred, targets)
     
     def conf(self,inputs):
         return self.softmax(self.classifier(inputs))
