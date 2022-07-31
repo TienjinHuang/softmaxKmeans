@@ -1,7 +1,7 @@
 import torch
 
 # FGSM attack code
-def fgsm_perturbation(image, epsilon, data_grad):
+def fgsm_step(image, epsilon, data_grad):
   r"""
   FGSM Attack
 
@@ -54,7 +54,7 @@ def attack( net, device, testloader, epsilon, criterion ):
       data_grad = inputs.grad.data
 
       # Call FGSM Attack
-      perturbed_data = fgsm_perturbation(inputs, epsilon, data_grad)
+      perturbed_data = fgsm_step(inputs, epsilon, data_grad)
       
       # Re-classify the perturbed image
       embedding_perturbed = net.embed(perturbed_data)
