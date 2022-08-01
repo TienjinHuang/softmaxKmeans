@@ -28,7 +28,7 @@ class Optimizer:
     train_loss, correct, conf = 0, 0, 0
     for batch_idx, (inputs, targets) in enumerate(self.trainloader):
       inputs, targets = inputs.to(self.device), targets.to(self.device)
-      self.optimizer.zero_grad()
+      #self.optimizer.zero_grad()
       inputs.requires_grad_(True)
       embedding = net.embed(inputs)
       loss = criterion(embedding,targets)
@@ -37,6 +37,7 @@ class Optimizer:
         loss += weight_gp_pred * self.gradient_penalty(inputs, criterion.Y_pred)
       if weight_gp_embed>0:
         loss+= weight_gp_embed * self.gradient_penalty(inputs, embedding)
+      self.optimizer.zero_grad()
       loss.backward()
       self.optimizer.step()
       inputs.requires_grad_(False)
