@@ -16,14 +16,14 @@ class Gauss(nn.Module):
         self.weight = nn.Parameter(torch.Tensor(out_features, in_features)) # (cxd)
         #self.weight.requires_grad=False
         #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        nn.init.uniform_(self.weight,a=5/gamma,b=50/gamma)
+        nn.init.uniform_(self.weight,a=5/(gamma**2),b=50/(gamma**2))
 
     def forward(self, D):
         DX = D.mm(self.weight.t())
         out = torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
         out = out - 2*DX
         out = out + torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
-        return -F.relu(self.gamma*out)
+        return -F.relu(((self.gamma)**2)*out)
     
     def conf(self,D):
         return torch.exp(self.forward(D))
@@ -48,10 +48,10 @@ class Gauss_MV(nn.Module):
         self.in_features = in_features
         self.out_features = out_features
         self.weight = nn.Parameter(torch.Tensor(in_features ,out_features)) #centroids (dxc)
-        self.W = nn.Parameter(torch.einsum('k,il->kil',gamma*torch.ones(out_features),torch.eye(in_features) )) # Whitening matrix (cxrxd) = (cxdxd)
+        self.W = nn.Parameter(torch.einsum('k,il->kil',(gamma**2)*torch.ones(out_features),torch.eye(in_features) )) # Whitening matrix (cxrxd) = (cxdxd)
         #self.weight.requires_grad=False
         #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        nn.init.uniform_(self.weight,a=5/gamma,b=50/gamma)
+        nn.init.uniform_(self.weight,a=5/(gamma**2),b=50/(gamma**2))
 
     def forward(self, D):
         WDt = torch.matmul(self.W, D.t()) #c x r x m
@@ -85,7 +85,7 @@ class Gauss_DUQ(nn.Module):
         DW = torch.einsum("ij,mnj->imn", D, self.W) # (mxdxc)
         Z = self.m / self.N.unsqueeze(0) # centroids (dxc)
         out = DW - Z.unsqueeze(0)
-        return -self.gamma*torch.mean((out**2),1) # (mxc)
+        return -(self.gamma**2)*torch.mean((out**2),1) # (mxc)
     
 
     def conf(self,D):
