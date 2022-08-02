@@ -28,6 +28,10 @@ class Gauss(nn.Module):
     def conf(self,D):
         return torch.exp(self.forward(D))
     
+    def update_centroids(self, D, Y):
+        
+        
+    
     def get_margins(self):
         #X is dxc, out is cxc matrix, containing the distances ||X_i-X_j||
         # only the upper triangle of out is needed
@@ -79,7 +83,8 @@ class Gauss_DUQ(nn.Module):
         self.register_buffer(
             "m", torch.normal(torch.zeros(in_features, out_features), 1) # (dxc)
         )
-        self.W = nn.Parameter(torch.normal(torch.zeros(in_features, out_features, in_features), 0.05)) # (dxcxr) (r=c?)
+        self.W = nn.Parameter(torch.zeros(in_features, out_features, in_features)) # (dxcxr) (r=c?)
+        nn.init.kaiming_normal_(self.W, nonlinearity="relu")
 
     def forward(self, D):
         DW = torch.einsum("ij,mnj->imn", D, self.W) # (mxdxc)
