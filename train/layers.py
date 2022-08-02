@@ -27,9 +27,6 @@ class Gauss(nn.Module):
     
     def conf(self,D):
         return torch.exp(self.forward(D))
-    
-    def update_centroids(self, D, Y):
-        
         
     
     def get_margins(self):
