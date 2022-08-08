@@ -1,7 +1,7 @@
 import torch
 
 class Optimizer:
-  def __init__(self, optimizer, trainloader, update_centroids, device):
+  def __init__(self, optimizer, trainloader, device, update_centroids=False):
     self.optimizer = optimizer
     self.trainloader = trainloader
     self.n = len(trainloader.dataset)
