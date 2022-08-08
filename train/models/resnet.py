@@ -96,7 +96,7 @@ class ResNetEmbed(nn.Module):
         out = torch.flatten(out, 1)
         return out
     
-class ResNet(nn.Module):
+class ResNet_old(nn.Module):
     def __init__(self, block, num_blocks, classifier):
         super(ResNet, self).__init__()
         self.embed = ResNetEmbed(block, num_blocks)
@@ -107,9 +107,30 @@ class ResNet(nn.Module):
         out = self.embed(x)
         out = self.classifier(out)
         return out
+    
+  class ResNet(nn.Module):
+    def __init__(self, embedding, classifier):
+        super(ResNet, self).__init__()
+        self.embed = embedding
+        self.classifier = classifier
+
+    def forward(self, x):
+        out = self.embed(x)
+        out = self.classifier(out)
+        return out
 
 def ResNet18(classifier):
-    return ResNet(BasicBlock, [2,2,2,2],classifier)
+    embed = torchvision.models.resnet18()
+
+    # Adapted resnet from:
+    # https://github.com/kuangliu/pytorch-cifar/blob/master/models/resnet.py
+    embed.conv1 = torch.nn.Conv2d(
+        3, 64, kernel_size=3, stride=1, padding=1, bias=False
+    )
+    embed.maxpool = nn.Identity()
+    embed.fc = nn.Identity()
+    return ResNet(embed,classifier)
+    #return ResNet(BasicBlock, [2,2,2,2],classifier)
 
 def ResNet34(classifier):
     return ResNet(BasicBlock, [3,4,6,3],classifier)
