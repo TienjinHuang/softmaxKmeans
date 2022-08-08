@@ -90,8 +90,10 @@ class ResNetEmbed(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
-        out = F.avg_pool2d(out, 4)
-        out = out.view(out.size(0), -1)
+        #out = F.avg_pool2d(out, 4)
+        #out = out.view(out.size(0), -1)
+        out = F.adaptive_max_pool2d(out,1, 1)
+        out = torch.flatten(out, 1)
         return out
     
 class ResNet(nn.Module):
