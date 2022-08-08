@@ -69,16 +69,16 @@ class Gauss_MV(nn.Module):
 class Gauss_DUQ(nn.Module):
     __constants__ = ['in_features', 'out_features']
 
-    def __init__(self, in_features, out_features, gamma, alpha=0.999):
+    def __init__(self, in_features, out_features, gamma, N_init, m_init, alpha=0.999):
         super(Gauss_DUQ, self).__init__()
 
         self.in_features = in_features
         self.out_features = out_features
         self.gamma=gamma
         self.alpha=alpha
-        self.register_buffer("N", torch.ones(out_features) * 12) # 
+        self.register_buffer("N", N_init) # 
         self.register_buffer(
-            "m", torch.normal(torch.zeros(in_features, out_features), 1) # (dxc)
+            "m", m_init # (dxc)
         )
         self.W = nn.Parameter(torch.zeros(in_features, out_features, in_features)) # (dxcxr) (r=c?)
         nn.init.kaiming_normal_(self.W, nonlinearity="relu")
