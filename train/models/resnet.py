@@ -108,7 +108,7 @@ class ResNet_old(nn.Module):
         out = self.classifier(out)
         return out
     
-  class ResNet(nn.Module):
+class ResNet(nn.Module):
     def __init__(self, embedding, classifier):
         super(ResNet, self).__init__()
         self.embed = embedding
