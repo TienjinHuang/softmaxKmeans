@@ -9,6 +9,7 @@ Reference:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision.models import resnet18
 
 
 class BasicBlock(nn.Module):
@@ -120,7 +121,7 @@ class ResNet(nn.Module):
         return out
 
 def ResNet18(classifier):
-    embed = torchvision.models.resnet18()
+    embed = resnet18()
 
     # Adapted resnet from:
     # https://github.com/kuangliu/pytorch-cifar/blob/master/models/resnet.py
