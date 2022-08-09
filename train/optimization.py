@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 
 class Optimizer:
   def __init__(self, optimizer, trainloader, device, update_centroids=False):
@@ -69,3 +70,18 @@ class Optimizer:
     total = len(data_loader.dataset)
     print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (test_loss/max(len(data_loader),1), 100.*correct/total, correct, total, 100*conf/total))
     return (100.*correct/total, 100*conf/total)
+  
+  def optimize_centroids(self, net):
+    net.eval()
+    d,c = net.classifier.in_features,net.classifier.out_features
+    Z=torch.zeros(d,c)
+    y_sum = torch.zeros(c)
+    with torch.no_grad():
+        for batch_idx, (inputs, targets) in enumerate(self.trainloader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            D = net.embed(inputs)
+            Y = F.one_hot(targets, c).float()
+            Z += D.t().mm(Y)
+            y_sum += torch.sum(Y,0)
+    Z = Z/y_sum
+    net.classifier.weight.data = Z.t()
