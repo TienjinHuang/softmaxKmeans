@@ -50,7 +50,7 @@ class Optimizer:
         confBatch, predicted = criterion.conf(embedding).max(1)
         correct += predicted.eq(targets).sum().item()
         conf+=confBatch.sum().item()
-    print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (100*train_loss/len(self.trainloader), 100.*correct/self.n, correct, self.n, 100*conf/self.n))
+    print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (train_loss/len(self.trainloader), 100.*correct/self.n, correct, self.n, 100*conf/self.n))
     return (100.*correct/self.n, 100*conf/self.n)
   
   def test_epoch(self, net, criterion, data_loader):
@@ -67,5 +67,5 @@ class Optimizer:
             correct += predicted.eq(targets).sum().item()
             conf+=confBatch.sum().item()
     total = len(data_loader.dataset)
-    print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (100*test_loss/max(len(data_loader),1), 100.*correct/total, correct, total, 100*conf/total))
+    print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (test_loss/max(len(data_loader),1), 100.*correct/total, correct, total, 100*conf/total))
     return (100.*correct/total, 100*conf/total)
