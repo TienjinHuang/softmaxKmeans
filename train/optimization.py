@@ -80,7 +80,7 @@ class Optimizer:
         for batch_idx, (inputs, targets) in enumerate(self.trainloader):
             inputs, targets = inputs.to(self.device), targets.to(self.device)
             D = net.embed(inputs)
-            Y = F.one_hot(targets, c).float()
+            Y = F.one_hot(targets, c).float().to(device)
             Z += D.t().mm(Y)
             y_sum += torch.sum(Y,0)
     Z = Z/y_sum
