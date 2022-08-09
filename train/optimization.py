@@ -24,9 +24,9 @@ class Optimizer:
     return gradient_penalty
 
   def train_epoch(self, net, criterion, weight_gp_pred=0, weight_gp_embed=0):
-    net.train()
     train_loss, correct, conf = 0, 0, 0
     for batch_idx, (inputs, targets) in enumerate(self.trainloader):
+      net.train()
       inputs, targets = inputs.to(self.device), targets.to(self.device)
       #self.optimizer.zero_grad()
       inputs.requires_grad_(True)
