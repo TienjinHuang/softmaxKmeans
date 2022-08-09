@@ -74,8 +74,8 @@ class Optimizer:
   def optimize_centroids(self, net):
     net.eval()
     d,c = net.classifier.in_features,net.classifier.out_features
-    Z=torch.zeros(d,c)
-    y_sum = torch.zeros(c)
+    Z=torch.zeros(d,c).to(self.device)
+    y_sum = torch.zeros(c).to(self.device)
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(self.trainloader):
             inputs, targets = inputs.to(self.device), targets.to(self.device)
