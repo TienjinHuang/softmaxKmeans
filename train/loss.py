@@ -23,14 +23,14 @@ class BCE_GALoss(nn.Module):
         self.bce_loss = nn.BCELoss()
         #self.mse_loss = nn.MSELoss(reduction='none')
         self.classifier = classifier.to(device)
-        self.gamma2 = nn.Parameter(torch.Tensor([0.9]))
+        self.gamma2 = nn.Parameter(torch.ones(c)*0.99)
  
     def forward(self, inputs, targets):        
         Y = self.I[targets]
         try:
             distances = -self.classifier(inputs)
             #loss = self.bce_loss(torch.exp(self.classifier(inputs)*self.gamma2),Y) 
-            loss = self.bce_loss(torch.exp(-distances*(self.gamma2)**2),Y) 
+            loss = self.bce_loss(torch.exp(-((self.gamma2)**2)*distances),Y) 
             #mse_M = self.mse_loss(Y@self.classifier.weight,inputs)
             #mse_M = torch.diag(Y@self.classifier.gamma) @ mse_M
             loss+= torch.mean(Y*distances)
