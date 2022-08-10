@@ -7,7 +7,7 @@ import math
 class Gauss(nn.Module):
     __constants__ = ['in_features', 'out_features']
 
-    def __init__(self,in_features,out_features, gamma):
+    def __init__(self,in_features,out_features, gamma, gamma_min=0.1,gamma_max=1000):
         super(Gauss, self).__init__()
 
         self.in_features = in_features
@@ -17,16 +17,21 @@ class Gauss(nn.Module):
         #self.weight.requires_grad=False
         #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         nn.init.uniform_(self.weight,a=5/(gamma**2),b=50/(gamma**2))
+        self.gamma_min = gamma_min
+        self.gamma_max = gamma_max
 
     def forward(self, D):
         DX = D.mm(self.weight.t())
         out = torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
         out = out - 2*DX
         out = out + torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
-        return -F.relu(((self.gamma)**2)*out)
+        return -F.relu(self.gamma*out)
     
     def conf(self,D):
         return torch.exp(self.forward(D))
+    
+    def prox():
+        torch.clamp_(self.gamma, self.gamma_min, self.gamma_max)
         
     
     def get_margins(self):
@@ -49,7 +54,7 @@ class Gauss_MV(nn.Module):
         self.in_features = in_features
         self.out_features = out_features
         self.weight = nn.Parameter(torch.Tensor(in_features ,out_features)) #centroids (dxc)
-        self.W = nn.Parameter(torch.einsum('k,il->kil',(gamma**2)*torch.ones(out_features),torch.eye(in_features) )) # Whitening matrix (cxrxd) = (cxdxd)
+        self.W = nn.Parameter(torch.einsum('k,il->kil',gamma*torch.ones(out_features),torch.eye(in_features) )) # Whitening matrix (cxrxd) = (cxdxd)
         #self.weight.requires_grad=False
         #nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         nn.init.uniform_(self.weight,a=5/(gamma**2),b=50/(gamma**2))
@@ -65,6 +70,9 @@ class Gauss_MV(nn.Module):
 
     def conf(self,D):
         return torch.exp(self.forward(D))
+    
+    def prox():
+        return
     
 class Gauss_DUQ(nn.Module):
     __constants__ = ['in_features', 'out_features']
