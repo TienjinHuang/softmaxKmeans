@@ -51,7 +51,6 @@ class BCE_GALoss(nn.Module):
     def prox(self):
         torch.clamp_(self.gamma2, self.gamma2_min, self.gamma2_max)
         self.classifier.prox()
-        print("proxed gamma2:",self.gamma2)
       
 
 class BCE_DUQLoss(nn.Module):
