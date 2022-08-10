@@ -16,7 +16,7 @@ class CE_Loss(nn.Module):
     def conf(self,inputs):
         return self.softmax(self.classifier(inputs))
     
-    def prox():
+    def prox(self):
         return
 
 class BCE_GALoss(nn.Module):
@@ -48,9 +48,10 @@ class BCE_GALoss(nn.Module):
     def conf(self,inputs):
         return self.classifier.conf(inputs)
     
-    def prox():
+    def prox(self):
         torch.clamp_(self.gamma2, self.gamma2_min, self.gamma2_max)
         self.classifier.prox()
+        print("proxed gamma2:",self.gamma2)
       
 
 class BCE_DUQLoss(nn.Module):
@@ -72,5 +73,5 @@ class BCE_DUQLoss(nn.Module):
     def conf(self,inputs):
         return self.classifier.conf(inputs)
     
-    def prox():
+    def prox(self):
         return
