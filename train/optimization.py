@@ -48,6 +48,8 @@ class Optimizer:
       inputs.requires_grad_(False)
 
       with torch.no_grad():
+        criterion.prox()
+        net.prox()
         if self.update_centroids:
           net.eval()
           criterion.classifier.update_centroids(embedding, criterion.Y)
