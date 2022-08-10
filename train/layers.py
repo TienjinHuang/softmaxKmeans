@@ -30,7 +30,7 @@ class Gauss(nn.Module):
     def conf(self,D):
         return torch.exp(self.forward(D))
     
-    def prox():
+    def prox(self):
         torch.clamp_(self.gamma, self.gamma_min, self.gamma_max)
         
     
@@ -71,7 +71,7 @@ class Gauss_MV(nn.Module):
     def conf(self,D):
         return torch.exp(self.forward(D))
     
-    def prox():
+    def prox(self):
         return
     
 class Gauss_DUQ(nn.Module):
