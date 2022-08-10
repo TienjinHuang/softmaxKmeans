@@ -30,7 +30,7 @@ class BCE_GALoss(nn.Module):
         try:
             distances = -self.classifier(inputs)
             #loss = self.bce_loss(torch.exp(self.classifier(inputs)*self.gamma2),Y) 
-            loss = self.bce_loss(torch.exp(-((self.gamma2)**2)*distances),Y) 
+            loss = self.bce_loss(torch.exp(-(torch.clamp(self.gamma2,max=0.99)**2)*distances),Y) 
             #mse_M = self.mse_loss(Y@self.classifier.weight,inputs)
             #mse_M = torch.diag(Y@self.classifier.gamma) @ mse_M
             loss+= torch.mean(Y*distances)
