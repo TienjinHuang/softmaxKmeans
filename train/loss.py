@@ -49,7 +49,7 @@ class BCE_GALoss(nn.Module):
         return self.classifier.conf(inputs)
     
     def prox():
-        torch.clamp_(self.gamma2,self.gamma2_min,self.gamma2_max = gamma2_max)
+        torch.clamp_(self.gamma2, self.gamma2_min, self.gamma2_max)
         self.classifier.prox()
       
 
