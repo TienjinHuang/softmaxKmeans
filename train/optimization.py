@@ -24,20 +24,24 @@ class Optimizer:
     gradient_penalty = ((grad_norm - 1) ** 2).mean()
     return gradient_penalty
 
-  def train_epoch(self, net, criterion, weight_gp_pred=0, weight_gp_embed=0):
+  def train_epoch(self, net, criterion, weight_gp_pred=0, weight_gp_embed=0, verbose=False):
     train_loss, correct, conf = 0, 0, 0
     for batch_idx, (inputs, targets) in enumerate(self.trainloader):
       net.train()
       inputs, targets = inputs.to(self.device), targets.to(self.device)
-      #self.optimizer.zero_grad()
       inputs.requires_grad_(True)
       embedding = net.embed(inputs)
       loss = criterion(embedding,targets)
+      if verbose:
+        print("loss:",loss.item())
       #----- gradient penalty
       if weight_gp_pred > 0:
         loss += weight_gp_pred * self.gradient_penalty(inputs, criterion.Y_pred)
       if weight_gp_embed>0:
-        loss+= weight_gp_embed * self.gradient_penalty(inputs, embedding)
+        gp = self.gradient_penalty(inputs, embedding)
+        loss+= weight_gp_embed * gp
+        if verbose:
+          print("GP:",gp.item())
       self.optimizer.zero_grad()
       loss.backward()
       self.optimizer.step()
