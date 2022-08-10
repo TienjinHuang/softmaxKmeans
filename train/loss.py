@@ -15,22 +15,26 @@ class CE_Loss(nn.Module):
     
     def conf(self,inputs):
         return self.softmax(self.classifier(inputs))
+    
+    def prox():
+        return
 
 class BCE_GALoss(nn.Module):
-    def __init__(self, classifier, c, device):
+    def __init__(self, classifier, c, device, gamma2_min = 0.1, gamma2_max = 0.9):
         super(BCE_GALoss, self).__init__()
         self.I = torch.eye(c).to(device)
         self.bce_loss = nn.BCELoss()
         #self.mse_loss = nn.MSELoss(reduction='none')
         self.classifier = classifier.to(device)
-        self.gamma2 = nn.Parameter(torch.ones(c)*0.99)
+        self.gamma2 = nn.Parameter(torch.ones(c)*0.9)
+        self.gamma2_min = gamma2_min
+        self.gamma2_max = gamma2_max
  
     def forward(self, inputs, targets):        
         Y = self.I[targets]
         try:
-            distances = -self.classifier(inputs)
-            #loss = self.bce_loss(torch.exp(self.classifier(inputs)*self.gamma2),Y) 
-            loss = self.bce_loss(torch.exp(-(torch.clamp(self.gamma2,max=0.99)**2)*distances),Y) 
+            distances = -self.classifier(inputs) 
+            loss = self.bce_loss(torch.exp(-self.gamma2*distances),Y) 
             #mse_M = self.mse_loss(Y@self.classifier.weight,inputs)
             #mse_M = torch.diag(Y@self.classifier.gamma) @ mse_M
             loss+= torch.mean(Y*distances)
@@ -43,6 +47,9 @@ class BCE_GALoss(nn.Module):
     
     def conf(self,inputs):
         return self.classifier.conf(inputs)
+    
+    def prox():
+        torch.clamp_(self.gamma2,self.gamma2_min,self.gamma2_max = gamma2_max)
       
 
 class BCE_DUQLoss(nn.Module):
@@ -63,3 +70,6 @@ class BCE_DUQLoss(nn.Module):
     
     def conf(self,inputs):
         return self.classifier.conf(inputs)
+    
+    def prox():
+        return
