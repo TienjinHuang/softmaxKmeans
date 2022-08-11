@@ -88,7 +88,7 @@ class Gauss_DUQ(nn.Module):
         self.alpha=alpha
         if N_init==None:
             N_init = torch.ones(out_features)*10
-        if m_init=None:
+        if m_init==None:
             m_init = torch.normal(torch.zeros(in_features, out_features), 0.05)
         self.register_buffer("N", N_init) # 
         self.register_buffer(
