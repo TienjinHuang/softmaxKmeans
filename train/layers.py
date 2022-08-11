@@ -21,11 +21,13 @@ class Gauss(nn.Module):
         self.gamma_max = gamma_max
 
     def forward(self, D):
-        DX = D.mm(self.weight.t())
-        out = torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
-        out = out - 2*DX
-        out = out + torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
-        return -F.relu(self.gamma*out)
+        #DX = D.mm(self.weight.t())
+        #out = torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
+        #out = out - 2*DX
+        #out = out + torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
+        out = D - self.weight.t().unsqueeze(0) #D is mxd, weight.t() (centroids) is dxc 
+        return -self.gamma*torch.sum((out**2),1) # (mxc)
+        #return -F.relu(self.gamma*out)
     
     def conf(self,D):
         return torch.exp(self.forward(D))
@@ -95,7 +97,7 @@ class Gauss_DUQ(nn.Module):
         DW = torch.einsum("ij,mnj->imn", D, self.W) # (mxdxc)
         Z = self.m / self.N.unsqueeze(0) # centroids (dxc)
         out = DW - Z.unsqueeze(0)
-        return -(self.gamma**2)*torch.mean((out**2),1) # (mxc)
+        return -self.gamma*torch.mean((out**2),1) # (mxc)
     
 
     def conf(self,D):
