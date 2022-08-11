@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import time
 
 class Optimizer:
   def __init__(self, optimizer, trainloader, device, update_centroids=False):
@@ -26,6 +27,7 @@ class Optimizer:
 
   def train_epoch(self, net, criterion, weight_gp_pred=0, weight_gp_embed=0, verbose=False):
     train_loss, correct, conf = 0, 0, 0
+    start_time=time.time()
     for batch_idx, (inputs, targets) in enumerate(self.trainloader):
       net.train()
       inputs, targets = inputs.to(self.device), targets.to(self.device)
@@ -56,7 +58,8 @@ class Optimizer:
         confBatch, predicted = criterion.conf(embedding).max(1)
         correct += predicted.eq(targets).sum().item()
         conf+=confBatch.sum().item()
-    print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (train_loss/len(self.trainloader), 100.*correct/self.n, correct, self.n, 100*conf/self.n))
+    execution_time = (time.time() - start_time)
+    print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f | time (s): %.2f'% (train_loss/len(self.trainloader), 100.*correct/self.n, correct, self.n, 100*conf/self.n, execution_time))
     return (100.*correct/self.n, 100*conf/self.n)
   
   def test_acc(self, net, criterion, data_loader, min_conf=0):
