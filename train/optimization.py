@@ -70,7 +70,7 @@ class Optimizer:
 
             test_loss += loss.item()
             confBatch, predicted = criterion.conf(outputs).max(1)
-            idx = (confBatch>conf)
+            idx = (confBatch>min_conf)
             correct += predicted[idx].eq(targets[idx]).sum().item()
             conf+=confBatch[idx].sum().item()
             total+= idx.sum()
