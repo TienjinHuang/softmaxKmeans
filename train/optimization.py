@@ -79,7 +79,7 @@ class Optimizer:
   
   def test_grad_penalty(self, net, criterion, data_loader, gp_embed):
     net.eval()
-    gp = 0,0,0,0
+    gp = 0
     for batch_idx, (inputs, targets) in enumerate(data_loader):
         inputs, targets = inputs.to(self.device), targets.to(self.device)
         inputs.requires_grad_(True)
