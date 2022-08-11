@@ -25,7 +25,7 @@ class Gauss(nn.Module):
         #out = torch.sum(D**2,1).unsqueeze(1).expand_as(DX)
         #out = out - 2*DX
         #out = out + torch.sum(self.weight.t()**2,0).unsqueeze(0).expand_as(DX)
-        out = D - self.weight.t().unsqueeze(0) #D is mxd, weight.t() (centroids) is dxc 
+        out = D.unsqueeze(2) - self.weight.t().unsqueeze(0) #D is mxd, weight.t() (centroids) is dxc 
         return -self.gamma*torch.sum((out**2),1) # (mxc)
         #return -F.relu(self.gamma*out)
     
