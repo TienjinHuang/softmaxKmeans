@@ -83,7 +83,7 @@ class Optimizer:
     for batch_idx, (inputs, targets) in enumerate(data_loader):
         inputs, targets = inputs.to(self.device), targets.to(self.device)
         inputs.requires_grad_(True)
-        outputs = net.embed(inputs)
+        embedding = net.embed(inputs)
         criterion(outputs, targets)
 
         if not gp_embed:
