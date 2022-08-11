@@ -59,9 +59,9 @@ class Optimizer:
     print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (train_loss/len(self.trainloader), 100.*correct/self.n, correct, self.n, 100*conf/self.n))
     return (100.*correct/self.n, 100*conf/self.n)
   
-  def test_epoch(self, net, criterion, data_loader):
+  def test_acc(self, net, criterion, data_loader, min_conf=0):
     net.eval()
-    test_loss, correct, conf = 0,0,0
+    test_loss, correct, conf, total = 0,0,0,0
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(data_loader):
             inputs, targets = inputs.to(self.device), targets.to(self.device)
@@ -70,11 +70,29 @@ class Optimizer:
 
             test_loss += loss.item()
             confBatch, predicted = criterion.conf(outputs).max(1)
-            correct += predicted.eq(targets).sum().item()
-            conf+=confBatch.sum().item()
-    total = len(data_loader.dataset)
+            idx = (confBatch>conf)
+            correct += predicted[idx].eq(targets[idx]).sum().item()
+            conf+=confBatch[idx].sum().item()
+            total+= idx.sum()
     print('Loss: %.3f | Acc: %.3f%% (%d/%d) | Conf %.2f'% (test_loss/max(len(data_loader),1), 100.*correct/total, correct, total, 100*conf/total))
     return (100.*correct/total, 100*conf/total)
+  
+  def test_grad_penalty(self, net, criterion, data_loader, gp_embed):
+    net.eval()
+    gp = 0,0,0,0
+    for batch_idx, (inputs, targets) in enumerate(data_loader):
+        inputs, targets = inputs.to(self.device), targets.to(self.device)
+        inputs.requires_grad_(True)
+        outputs = net.embed(inputs)
+        criterion(outputs, targets)
+
+        if not gp_embed:
+          gp += self.gradient_penalty(inputs, criterion.Y_pred).item()
+        if gp_embed:
+          gp += self.gradient_penalty(inputs, embedding).item()
+        inputs.requires_grad_(False)
+    print('Gradient Penalty: %.3f'% (gp/max(len(data_loader),1)))
+    return gp
   
   def optimize_centroids(self, net):
     net.eval()
