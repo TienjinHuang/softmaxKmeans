@@ -84,7 +84,7 @@ class Optimizer:
         inputs, targets = inputs.to(self.device), targets.to(self.device)
         inputs.requires_grad_(True)
         embedding = net.embed(inputs)
-        criterion(outputs, targets)
+        criterion(embedding, targets)
 
         if not gp_embed:
           gp += self.gradient_penalty(inputs, criterion.Y_pred).item()
