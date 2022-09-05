@@ -26,7 +26,7 @@ import random
 def add_parser_arguments(parser):
     parser.add_argument('--datadir', default='/projects/2/managed_datasets/imagenet/',help='path to dataset')
     parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',choices=['resnet18','resnet50'])
-    parser.add_argument('--dataset', default='cifar10', type=str,choices=['imagenet','cifar10'])
+    parser.add_argument('--dataset', default='cifar10', type=str,choices=['imagenet','cifar10','cifar100'])
     parser.add_argument('--epochs', default=90, type=int, metavar='N',help='number of total epochs to run')    
     parser.add_argument('-b', '--batch-size', default=128, type=int,metavar='N', help='mini-batch size (default: 256)')                    
     parser.add_argument('--lr', '--learning-rate', default=0.01, type=float,metavar='LR', help='initial learning rate')
@@ -181,6 +181,29 @@ def main():
         transform_test = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        ])
+        trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
+        testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
+        trainsampler=DistributedSampler(trainset,shuffle=True)
+        testsampler=DistributedSampler(testset,shuffle=False)
+        trainloader=torch.utils.data.DataLoader(trainset,batch_size=args.batch_size,prefetch_factor=2,pin_memory=True,sampler=trainsampler,num_workers=4)
+        testloader=torch.utils.data.DataLoader(testset,batch_size=args.batch_size,prefetch_factor=2,pin_memory=True,sampler=testsampler,num_workers=4)
+    if args.dataset=='cifar100':
+        c=100   
+        name="Cifar100"
+        print('==> Preparing data..')
+        #CIFAR100_MEAN = (0.5070751592371323, 0.48654887331495095, 0.4409178433670343)
+        #CIFAR100_STD = (0.2673342858792401, 0.2564384629170883, 0.27615047132568404)
+        transform_train = transforms.Compose([
+            transforms.RandomCrop(32, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5070751592371323, 0.48654887331495095, 0.4409178433670343), (0.2673342858792401, 0.2564384629170883, 0.27615047132568404)),
+        ])
+
+        transform_test = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5070751592371323, 0.48654887331495095, 0.4409178433670343), (0.2673342858792401, 0.2564384629170883, 0.27615047132568404)),
         ])
         trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
         testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
