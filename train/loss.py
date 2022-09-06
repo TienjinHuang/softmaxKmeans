@@ -20,7 +20,7 @@ class CE_Loss(nn.Module):
         return
 
 class BCE_GALoss(nn.Module):
-    def __init__(self, classifier, c, device, gamma2_min = 0.1, gamma2_max = 0.9):
+    def __init__(self, classifier, c, device, gamma2_min = 0.001, gamma2_max = 0.9):
         super(BCE_GALoss, self).__init__()
         self.I = torch.eye(c).to(device)
         self.bce_loss = nn.BCELoss()
